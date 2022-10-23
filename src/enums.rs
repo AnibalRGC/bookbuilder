@@ -283,4 +283,3 @@ pub enum EtpFlag {
     IsNot,
     Unavailable,
 }
-

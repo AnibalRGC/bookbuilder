@@ -1,17 +1,8 @@
-use crate::utils::{as_u64, as_u48, as_u32, as_u16};
 use crate::enums::{
-    Side,
-    EtpFlag,
-    LuldRefPriceTier,
-    IpoFlag,
-    ThresholdIndicator,
-    Authenticity,
-    IssueClassification,
-    IssueSubType,
-    FinancialStatus,
-    MarketCategory,
+    Authenticity, EtpFlag, FinancialStatus, IpoFlag, IssueClassification, IssueSubType,
+    LuldRefPriceTier, MarketCategory, Side, ThresholdIndicator,
 };
-
+use crate::utils::{as_u16, as_u32, as_u48, as_u64};
 
 #[derive(Debug)]
 pub struct PacketHeader<'a> {
@@ -213,7 +204,7 @@ pub struct StockDirectory {
     issue_classification: IssueClassification,
     issue_subtype: IssueSubType,
     authenticity: Authenticity,
-    short_sale_threshold: ThresholdIndicator, 
+    short_sale_threshold: ThresholdIndicator,
     ipo_flag: IpoFlag,
     luld_ref_price_tier: LuldRefPriceTier,
     etp_flag: EtpFlag,
@@ -269,7 +260,7 @@ impl StockDirectory {
             },
             etp_leverage_factor: as_u32(&bytes[23..27]),
             inverse_indicator: match bytes[28] {
-                b'Y' => true, 
+                b'Y' => true,
                 b'N' => false,
                 _ => unreachable!(),
             },
@@ -288,7 +279,6 @@ pub enum Body {
     CancelOrder(CancelOrder),
     None,
 }
-
 
 #[derive(Debug)]
 pub struct Message {
@@ -312,8 +302,7 @@ impl Message {
                 b'U' => Body::ReplaceOrder(ReplaceOrder::new(&bytes[3..])),
                 b'X' => Body::CancelOrder(CancelOrder::new(&bytes[3..])),
                 _ => Body::None,
-            }
+            },
         }
     }
 }
-

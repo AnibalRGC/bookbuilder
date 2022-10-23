@@ -1,7 +1,7 @@
 use clap::{value_parser, Arg, Command};
 use pcap::Capture;
-use std::path::Path;
 use std::collections::HashMap;
+use std::path::Path;
 
 use std::mem;
 
@@ -12,7 +12,7 @@ mod utils;
 
 use bookmanager::{BookManager, Order, OrderManager};
 
-use messages::{Message, PacketHeader, Body};
+use messages::{Body, Message, PacketHeader};
 use utils::{
     as_u16, PACKET_HEADER_LENGTH, PACKET_HEADER_OFFSET, UDP_DEST_PORT, UDP_DEST_PORT_OFFSET,
 };
@@ -97,7 +97,13 @@ fn main() {
         }
     }
 
-    let associate_stock_locate = listing.iter().find_map(|(key, val)| if *val == *symbol { Some(key.clone()) } else { None });
+    let associate_stock_locate = listing.iter().find_map(|(key, val)| {
+        if *val == *symbol {
+            Some(key.clone())
+        } else {
+            None
+        }
+    });
 
     if let Some(sl) = associate_stock_locate {
         println!("Book (depth: {}) : {}", depth, symbol);
