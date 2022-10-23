@@ -3,6 +3,8 @@ use std::collections::HashMap;
 use crate::enums::{OrderType, Side};
 use crate::messages::{Body, Message};
 
+type Books = HashMap<u16, (HashMap<u32, u32>, HashMap<u32, u32>)>;
+
 #[derive(Debug, Clone, Copy)]
 pub struct Order {
     msg_type: OrderType,
@@ -21,7 +23,7 @@ impl Order {
                     .entry(add.stock_locate)
                     .or_insert_with(|| add.stock.clone());
                 Order {
-                    msg_type: OrderType::AddOrder,
+                    msg_type: OrderType::Add,
                     reference: add.reference,
                     side: add.side,
                     quantity: add.shares,
@@ -31,7 +33,7 @@ impl Order {
             }
             Body::ExecutedWithPriceOrder(exec) => {
                 Order {
-                    msg_type: OrderType::ExecutedWithPriceOrder,
+                    msg_type: OrderType::ExecutedWithPrice,
                     reference: exec.reference,
                     side: Side::Buy, /* unused */
                     quantity: exec.executed_shares,
@@ -41,7 +43,7 @@ impl Order {
             }
             Body::DeleteOrder(del) => {
                 Order {
-                    msg_type: OrderType::DeleteOrder,
+                    msg_type: OrderType::Delete,
                     reference: del.reference,
                     side: Side::Buy, /* unused */
                     quantity: 0,     /* unused */
@@ -51,7 +53,7 @@ impl Order {
             }
             Body::ExecutedOrder(exec) => {
                 Order {
-                    msg_type: OrderType::ExecutedOrder,
+                    msg_type: OrderType::Executed,
                     reference: exec.reference,
                     side: Side::Buy, /* unused */
                     quantity: exec.executed_shares,
@@ -61,7 +63,7 @@ impl Order {
             }
             Body::ReplaceOrder(repl) => {
                 Order {
-                    msg_type: OrderType::ReplaceOrder,
+                    msg_type: OrderType::Replace,
                     reference: repl.original_reference,
                     side: Side::Buy, /* unused */
                     quantity: repl.shares,
@@ -71,7 +73,7 @@ impl Order {
             }
             Body::CancelOrder(cancel) => {
                 Order {
-                    msg_type: OrderType::CancelOrder,
+                    msg_type: OrderType::Cancel,
                     reference: cancel.reference,
                     side: Side::Buy, /* unused */
                     quantity: cancel.canceled_shares,
@@ -81,12 +83,12 @@ impl Order {
             }
             Body::StockDirectory(_) => {
                 Order {
-                    msg_type: OrderType::CancelOrder, /* unused */
-                    reference: 0,                     /* unused */
-                    side: Side::Buy,                  /* unused */
-                    quantity: 0,                      /* unused */
-                    stock_locate: 0,                  /* unused */
-                    price: 0,                         /* unused */
+                    msg_type: OrderType::Cancel, /* unused */
+                    reference: 0,                /* unused */
+                    side: Side::Buy,             /* unused */
+                    quantity: 0,                 /* unused */
+                    stock_locate: 0,             /* unused */
+                    price: 0,                    /* unused */
                 }
             }
             _ => unreachable!(),
@@ -188,32 +190,29 @@ impl OrderManager {
 
     pub fn process(&mut self, order: &Order, book_manager: &mut BookManager) {
         match &order.msg_type {
-            OrderType::AddOrder => self.add_order(&order, book_manager),
-            OrderType::ExecutedWithPriceOrder => self.execute_order(
+            OrderType::Add => self.add_order(order, book_manager),
+            OrderType::ExecutedWithPrice => self.execute_order(
                 order.stock_locate,
                 order.reference,
                 order.quantity,
                 book_manager,
             ),
-            OrderType::DeleteOrder => {
+            OrderType::Delete => {
                 self.delete_order(order.stock_locate, order.reference, book_manager)
             }
-            OrderType::ExecutedOrder => self.execute_order(
+            OrderType::Executed => self.execute_order(
                 order.stock_locate,
                 order.reference,
                 order.quantity,
                 book_manager,
             ),
-            OrderType::CancelOrder => self.reduce_quantity(
+            OrderType::Cancel => self.reduce_quantity(
                 order.stock_locate,
                 order.reference,
                 order.quantity,
                 book_manager,
             ),
-            OrderType::DeleteOrder => {
-                self.delete_order(order.stock_locate, order.reference, book_manager)
-            }
-            OrderType::ReplaceOrder => {
+            OrderType::Replace => {
                 let mut new_order = Order {
                     msg_type: order.msg_type,
                     reference: order.reference,
@@ -229,14 +228,13 @@ impl OrderManager {
                     book_manager,
                 );
             }
-            _ => println!("Not impl yet."),
         }
     }
 }
 
 #[derive(Debug)]
 pub struct BookManager {
-    pub books_per_stock_locate: HashMap<u16, (HashMap<u32, u32>, HashMap<u32, u32>)>,
+    pub books_per_stock_locate: Books,
 }
 
 impl BookManager {

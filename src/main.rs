@@ -97,13 +97,10 @@ fn main() {
         }
     }
 
-    let associate_stock_locate = listing.iter().find_map(|(key, val)| {
-        if *val == *symbol {
-            Some(key.clone())
-        } else {
-            None
-        }
-    });
+    let associate_stock_locate =
+        listing
+            .iter()
+            .find_map(|(key, val)| if *val == *symbol { Some(*key) } else { None });
 
     if let Some(sl) = associate_stock_locate {
         println!("Book (depth: {}) : {}", depth, symbol);

@@ -6,7 +6,7 @@ use crate::utils::{as_u16, as_u32, as_u48, as_u64};
 
 #[derive(Debug)]
 pub struct PacketHeader<'a> {
-    session: &'a [u8],
+    _session: &'a [u8],
     pub sequence_number: u64,
     pub message_count: u16,
 }
@@ -14,14 +14,14 @@ pub struct PacketHeader<'a> {
 impl<'a> PacketHeader<'a> {
     pub fn new(bytes: &'a [u8]) -> Self {
         PacketHeader {
-            session: &bytes[..10],
+            _session: &bytes[..10],
             sequence_number: as_u64(&bytes[10..18]),
             message_count: as_u16(&bytes[18..20]),
         }
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct ExecutedOrder {
     pub stock_locate: u16,
     tracking_number: u16,
@@ -44,7 +44,7 @@ impl ExecutedOrder {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct ExecutedWithPriceOrder {
     pub stock_locate: u16,
     tracking_number: u16,
@@ -75,7 +75,7 @@ impl ExecutedWithPriceOrder {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct CancelOrder {
     pub stock_locate: u16,
     tracking_number: u16,
@@ -96,7 +96,7 @@ impl CancelOrder {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct DeleteOrder {
     pub stock_locate: u16,
     tracking_number: u16,
@@ -115,7 +115,7 @@ impl DeleteOrder {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct ReplaceOrder {
     pub stock_locate: u16,
     tracking_number: u16,
@@ -140,7 +140,7 @@ impl ReplaceOrder {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct AddOrder {
     pub stock_locate: u16,
     tracking_number: u16,
@@ -191,7 +191,7 @@ impl AddOrder {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct StockDirectory {
     stock_locate: u16,
     tracking_number: u16,
@@ -218,48 +218,48 @@ impl StockDirectory {
             stock_locate: as_u16(&bytes[..2]),
             tracking_number: as_u16(&bytes[2..4]),
             timestamp: as_u48(&bytes[4..10]),
-            stock: String::from_utf8_lossy(&bytes[10..8]).to_string(),
-            market_category: MarketCategory::new(bytes[8]),
-            financial_status: FinancialStatus::new(bytes[9]),
-            round_lot_size: as_u32(&bytes[10..14]),
-            round_lots_only: match &bytes[14] {
+            stock: String::from_utf8_lossy(&bytes[10..16]).to_string(),
+            market_category: MarketCategory::new(bytes[16]),
+            financial_status: FinancialStatus::new(bytes[17]),
+            round_lot_size: as_u32(&bytes[18..22]),
+            round_lots_only: match &bytes[22] {
                 b'Y' => true,
                 b'N' => false,
                 _ => unreachable!(),
             },
-            issue_classification: IssueClassification::new(bytes[15]),
-            issue_subtype: IssueSubType::new(&bytes[16..18]),
-            authenticity: match bytes[18] {
+            issue_classification: IssueClassification::new(bytes[23]),
+            issue_subtype: IssueSubType::new(&bytes[24..26]),
+            authenticity: match bytes[26] {
                 b'P' => Authenticity::Production,
                 b'T' => Authenticity::Test,
                 _ => unreachable!(),
             },
-            short_sale_threshold: match bytes[19] {
+            short_sale_threshold: match bytes[27] {
                 b'Y' => ThresholdIndicator::Restricted,
                 b'N' => ThresholdIndicator::NotRestricted,
                 b' ' => ThresholdIndicator::Unavailable,
                 _ => unreachable!(),
             },
-            ipo_flag: match bytes[20] {
+            ipo_flag: match bytes[28] {
                 b'Y' => IpoFlag::New,
                 b'N' => IpoFlag::NotNew,
                 b' ' => IpoFlag::Unavailable,
                 _ => unreachable!(),
             },
-            luld_ref_price_tier: match bytes[21] {
+            luld_ref_price_tier: match bytes[29] {
                 b'1' => LuldRefPriceTier::Tier1,
                 b'2' => LuldRefPriceTier::Tier2,
                 b' ' => LuldRefPriceTier::Unavailable,
                 _ => unreachable!(),
             },
-            etp_flag: match bytes[22] {
+            etp_flag: match bytes[30] {
                 b'Y' => EtpFlag::Is,
                 b'N' => EtpFlag::IsNot,
                 b' ' => EtpFlag::Unavailable,
                 _ => unreachable!(),
             },
-            etp_leverage_factor: as_u32(&bytes[23..27]),
-            inverse_indicator: match bytes[28] {
+            etp_leverage_factor: as_u32(&bytes[31..35]),
+            inverse_indicator: match bytes[35] {
                 b'Y' => true,
                 b'N' => false,
                 _ => unreachable!(),
@@ -268,7 +268,7 @@ impl StockDirectory {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Body {
     AddOrder(AddOrder),
     ExecutedWithPriceOrder(ExecutedWithPriceOrder),

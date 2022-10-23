@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Side {
     Sell,
     Buy,
@@ -6,15 +6,15 @@ pub enum Side {
 
 #[derive(Debug, Clone, Copy)]
 pub enum OrderType {
-    AddOrder,
-    ExecutedWithPriceOrder,
-    DeleteOrder,
-    ExecutedOrder,
-    ReplaceOrder,
-    CancelOrder,
+    Add,
+    ExecutedWithPrice,
+    Delete,
+    Executed,
+    Replace,
+    Cancel,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum MarketCategory {
     NasdaqGlobalSelect,
     NasdaqGlobalMarket,
@@ -44,7 +44,7 @@ impl MarketCategory {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum FinancialStatus {
     Normal,
     Deficient,
@@ -78,7 +78,7 @@ impl FinancialStatus {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum IssueClassification {
     AmericanDepositaryShare,
     Bond,
@@ -122,7 +122,7 @@ impl IssueClassification {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum IssueSubType {
     PreferredTrustSecurities,
     AlphaIndexETNs,
@@ -167,7 +167,7 @@ pub enum IssueSubType {
     RegS,
     CommodityRedeemableCommodityLinkedSecurities,
     ETNRedeemableFuturesLinkedSecurities,
-    REIT,
+    Reit,
     CommodityRedeemableCurrencyLinkedSecurities,
     Seed,
     SpotRateClosing,
@@ -230,7 +230,7 @@ impl IssueSubType {
             b"R " => IssueSubType::RegS,
             b"RC" => IssueSubType::CommodityRedeemableCommodityLinkedSecurities,
             b"RF" => IssueSubType::ETNRedeemableFuturesLinkedSecurities,
-            b"RT" => IssueSubType::REIT,
+            b"RT" => IssueSubType::Reit,
             b"RU" => IssueSubType::CommodityRedeemableCurrencyLinkedSecurities,
             b"S " => IssueSubType::Seed,
             b"SC" => IssueSubType::SpotRateClosing,
@@ -250,34 +250,34 @@ impl IssueSubType {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Authenticity {
     Production,
     Test,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ThresholdIndicator {
     Restricted,
     NotRestricted,
     Unavailable,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum IpoFlag {
     New,
     NotNew,
     Unavailable,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum LuldRefPriceTier {
     Tier1,
     Tier2,
     Unavailable,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum EtpFlag {
     Is,
     IsNot,
